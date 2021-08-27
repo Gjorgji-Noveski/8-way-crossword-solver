@@ -1,3 +1,6 @@
+import cv2
+import numpy as np
+import matplotlib.pyplot as plt
 def preprocess(txt_path):
     import re
     with open(txt_path, mode='r', encoding='utf-8')as f:
@@ -5,79 +8,6 @@ def preprocess(txt_path):
 
     return ocr_text_lines
 
-
-def store_letters_in_dict(txt_lines):
-    letter_loc_dict = {}
-    for line_idx, line in enumerate(txt_lines):
-        for char_idx, letter in enumerate(line):
-            loc = (line_idx, char_idx)
-            if letter not in letter_loc_dict:
-                letter_loc_dict[letter] = []
-                letter_loc_dict[letter].append(loc)
-            else:
-                letter_loc_dict[letter].append(loc)
-    return letter_loc_dict
-
-
-# current_letter_idx = 0
-# letter_loc_dict = store_letters_in_dict(preprocess(r'PATH'))
-# visited_locs = []
-
-
-def find_words(words):
-    global letter_loc_dict
-    for word in words:
-        first_letter_stack = letter_loc_dict[word[0]].copy()
-
-        while first_letter_stack:
-            current_loc = first_letter_stack.pop()
-            continuing(current_loc, word)
-
-
-def continuing(current_loc, word):
-    global current_letter_idx, letter_loc_dict, visited_locs
-    flag_found_smth = False
-
-    next_letter_stack = letter_loc_dict[word[current_letter_idx]].copy()
-    while next_letter_stack:
-        loc2 = next_letter_stack.pop()
-        # ako najde
-        # print(type(current_loc))
-        # print(type(loc2))
-        # print(current_loc)
-        # print(loc2)
-        check_closeness_mapper = map(lambda tup1, tup2: abs(tup1[0] - tup2[0]) <= 1 and abs(tup1[1] - tup2[1]) <= 1,
-                                     [current_loc], [loc2])
-        if list(check_closeness_mapper)[0]:
-            print(loc2)
-            current_letter_idx += 1
-            flag_found_smth = True
-            continuing((loc2), word)
-    # ako ne najde
-    if not flag_found_smth:
-        current_letter_idx -= 1
-
-
-def compare_locs(curr_letter_locs, next_letter_locs):
-    # turi mu iterable od 1 tuple samo
-    for cr_loc in curr_letter_locs:
-        for nx_loc in next_letter_locs:
-            # check in 8 directions if the next letter is present
-            check_closeness_mapper = map(lambda tup1, tup2: abs(tup1[0] - tup2[0]) <= 1 and abs(tup1[1] - tup2[1]) <= 1,
-                                         [cr_loc], [nx_loc])
-            if list(check_closeness_mapper)[0] == True:
-                return nx_loc
-    return False
-
-
-# current_letter_idx = 0
-# lines = ['ksqasamd','suqasdas','asqasdjs','asqbsdks','asdardes','asdarels']
-#
-# letter_loc_dict = store_letters_in_dict(lines)
-# print(letter_loc_dict)
-# find_words(['qqqq'])
-# TODO: NAPRAI FUNCKIJA SHTO KE GO PRETVORAT VO nxn GRID liniite od OCR-ot, deka nekad mozhda da dobieme samo edna bukva vo eden red a vo svite drugi po 5 turi go kaj ifoivte na list comprehensionov
-# TODO: ama komplicirano e, neka bide samo taka raw od ocr i da ima funck shto ke proveruva dali ima element
 
 def check_element_exists(word_grid, coord):
     try:
@@ -102,16 +32,16 @@ def get_direction(first_word_coord, second_word_coord):
 
 
 def search_till_end(word_grid, curr_coord, direction, search_word):
-    najdeni_coords = []
+    found_coords = []
     for letter in search_word:
         curr_coord = (curr_coord[0] + direction[0], curr_coord[1] + direction[1])
         if check_element_exists(word_grid, curr_coord):
             if word_grid[curr_coord[0]][curr_coord[1]] == letter:
-                najdeni_coords.append(curr_coord)
+                found_coords.append(curr_coord)
                 continue
         break
     else:
-        return najdeni_coords
+        return found_coords
     return []
 
 
@@ -124,9 +54,52 @@ def loop_through_letters(word_grid, search_word):
                     direction = get_direction((row_idx, col_idx), coord)
                     found_coords = search_till_end(word_grid, (row_idx, col_idx), direction, search_word[1:])
                     if found_coords:
+                        found_coords.insert(0, (row_idx, col_idx))
                         print(found_coords)
+
+def ocr(path):
+    # img = cv2.imread(path)
+    # img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
+    img_gray = cv2.imread(path, cv2.IMREAD_GRAYSCALE)
+
+    def show_pic(img, gray=False):
+        fig = plt.figure(figsize=(15, 15))
+        ax = fig.add_subplot(111)
+        if gray:
+            ax.imshow(img, cmap='gray')
+        else:
+            ax.imshow(img)
+
+    # Blur
+    blurred_img = cv2.blur(img_gray, (11, 11))
+    # show_pic(blurred_img, gray=True)
+
+    # OTSU Thresh (finds value for binary thresh automatically, the value is a minimal value of the peaks of the histogram (peak for dark colors and light colors)
+    # basically the furhtest peak to the left and furthest to the right finds the value that has the minimal variance between them.
+    ret, thresh_img = cv2.threshold(blurred_img, 0, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)
+    # show_pic(thresh_img, gray=True)
+
+    # Morphology operators
+    thresh_img = cv2.bitwise_not(thresh_img)
+    elipse_kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (3, 3))
+
+    # open
+    morphed_elipse = cv2.morphologyEx(thresh_img, cv2.MORPH_OPEN, elipse_kernel, iterations=2)
+    # show_pic(morphed_elipse, True)
+
+    # close
+    morphed_elipse_close_inv = cv2.morphologyEx(morphed_elipse, cv2.MORPH_CLOSE, elipse_kernel, iterations=2)
+    # show_pic(morphed_elipse_close_inv, True)
+
+    # Erode
+    morphed_elipse_close_inv1 = cv2.morphologyEx(morphed_elipse_close_inv, cv2.MORPH_ERODE, elipse_kernel, iterations=3)
+    # show_pic(morphed_elipse_close_inv1, True)
+
+    # saving img
+    cv2.imwrite('data/processed_word_gird.jpg', morphed_elipse_close_inv1)
+
+
 
 
 matrix = preprocess(r'C:\Users\dis\Desktop\krstozbor_procesiran - Copy.txt')
 loop_through_letters(matrix, 'lepak')
-
