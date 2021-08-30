@@ -1,3 +1,5 @@
+import copy
+import argparse
 import cv2
 import numpy as np
 import matplotlib.pyplot as plt
@@ -47,18 +49,30 @@ def search_till_end(word_grid, curr_coord, direction, search_word):
         return found_coords
     return []
 
+def print_found_matches(word_grid, locations):
+    wg = copy.copy(word_grid)
+    for loc in locations:
+        wg[loc[0]] = wg[loc[0]][:loc[1]] + '(' + wg[loc[0]][loc[1]] + ')' + wg[loc[0]][loc[1]+1:]
+    print('\n'.join(wg))
+    print('\n---------------\n')
 
-def loop_through_letters(word_grid, search_word):
-    for row_idx, row in enumerate(word_grid):
-        for col_idx, curr_letter in enumerate(row):
-            if curr_letter == search_word[0]:
-                match_coords = get_matching_coords(word_grid, (row_idx, col_idx), search_word[1])
-                for coord in match_coords:
-                    direction = get_direction((row_idx, col_idx), coord)
-                    found_coords = search_till_end(word_grid, (row_idx, col_idx), direction, search_word[1:])
-                    if found_coords:
-                        found_coords.insert(0, (row_idx, col_idx))
-                        print(found_coords)
+
+def loop_through_letters(word_grid, search_word, search_half_word=True):
+    search_words = [search_word]
+    if search_half_word:
+        middle_idx = len(search_word)//2
+        search_words = [search_word[0:middle_idx], search_word[middle_idx:]]
+    for word in search_words:
+        for row_idx, row in enumerate(word_grid):
+            for col_idx, curr_letter in enumerate(row):
+                if curr_letter == word[0]:
+                    match_coords = get_matching_coords(word_grid, (row_idx, col_idx), word[1])
+                    for coord in match_coords:
+                        direction = get_direction((row_idx, col_idx), coord)
+                        found_coords = search_till_end(word_grid, (row_idx, col_idx), direction, word[1:])
+                        if found_coords:
+                            found_coords.insert(0, (row_idx, col_idx))
+                            print_found_matches(word_grid, found_coords)
 
 def ocr(path):
     # img = cv2.imread(path)
@@ -103,14 +117,31 @@ def ocr(path):
 
 
 
-ocr('data/krstozbor (1).jpg')
-subprocess_result = subprocess.run(['tesseract', 'data/processed_word_grid.jpg', 'data/tesseract_text', '-l', 'mkd', '-psm', '11'], capture_output=True, text=True)
-print(f'Stdout: {subprocess_result.stdout}')
-print(f'Stderr: {subprocess_result.stderr}')
-#
-matrix = preprocess(r'data/tesseract_text.txt')
-loop_through_letters(matrix, 'канада')
-
-# subprocess_result = subprocess.run(['tesseract', 'data/processed_word_gird.jpg', 'data/tesseract_text', '-l', 'mkd', '-psm', '11'], capture_output=True, text=True)
+# ocr('data/krstozbor (1).jpg')
+# subprocess_result = subprocess.run(['tesseract', 'data/processed_word_grid.jpg', 'data/tesseract_text', '-l', 'mkd', '-psm', '11'], capture_output=True, text=True)
 # print(f'Stdout: {subprocess_result.stdout}')
 # print(f'Stderr: {subprocess_result.stderr}')
+#
+# matrix = preprocess(r'data/tesseract_text.txt')
+# loop_through_letters(matrix, 'пиперки')
+# print(matrix)
+
+
+parser = argparse.ArgumentParser()
+parser.add_argument('--img-path', dest='img_path', required=False, type=str, help='Path to an image where the ocr algorithm will try to extract letters')
+parser.add_argument('--text-path', dest='text_path', required=False, type=str, help='Path to a text file which contains words in a MxN, or NxN grid.')
+parser.add_argument('--tesseract-lang', dest='tesseract_lang', required=False, type=str, help='Language to use for tesseract. Ex: "mkd" to search words in macedonian')
+
+args = parser.parse_args()
+
+if args.img_path:
+    ocr(args.img_path)
+    if args.tesseract_lang:
+        language = args.tesseract_lang
+    else:
+        language = 'eng'
+    subprocess_result = subprocess.run(['tesseract', 'data/processed_word_grid.jpg', 'data/tesseract_text', '-l', language, '-psm', '11'], capture_output=True, text=True)
+    print(f'Stdout: {subprocess_result.stdout}')
+    print(f'Stderr: {subprocess_result.stderr}')
+if args.text_path:
+    # subprocess_result = subprocess.run(['tesseract', 'data/processed_word_grid.jpg', 'data/tesseract_text', '-l', 'mkd', '-psm', '11'], capture_output=True, text=True)
