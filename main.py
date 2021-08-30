@@ -1,11 +1,14 @@
 import cv2
 import numpy as np
 import matplotlib.pyplot as plt
+import subprocess
 def preprocess(txt_path):
     import re
     with open(txt_path, mode='r', encoding='utf-8')as f:
         ocr_text_lines = [re.sub(r'[\W\d\s]', '', line).lower() for line in f.readlines() if line.strip() != '']
-
+        ocr_text_lines = [line for line in ocr_text_lines if line!='']
+    with open('data/after_preprocessing.txt', encoding='utf-8', mode='w') as wf:
+        wf.write('\n'.join(ocr_text_lines))
     return ocr_text_lines
 
 
@@ -84,22 +87,30 @@ def ocr(path):
     elipse_kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (3, 3))
 
     # open
-    morphed_elipse = cv2.morphologyEx(thresh_img, cv2.MORPH_OPEN, elipse_kernel, iterations=2)
+    morphed_elipse = cv2.morphologyEx(thresh_img, cv2.MORPH_OPEN, elipse_kernel, iterations=4)
     # show_pic(morphed_elipse, True)
 
     # close
-    morphed_elipse_close_inv = cv2.morphologyEx(morphed_elipse, cv2.MORPH_CLOSE, elipse_kernel, iterations=2)
+    morphed_elipse_close_inv = cv2.morphologyEx(morphed_elipse, cv2.MORPH_CLOSE, elipse_kernel, iterations=3)
     # show_pic(morphed_elipse_close_inv, True)
 
     # Erode
-    morphed_elipse_close_inv1 = cv2.morphologyEx(morphed_elipse_close_inv, cv2.MORPH_ERODE, elipse_kernel, iterations=3)
+    morphed_elipse_close_inv1 = cv2.morphologyEx(morphed_elipse_close_inv, cv2.MORPH_ERODE, elipse_kernel, iterations=4)
     # show_pic(morphed_elipse_close_inv1, True)
 
     # saving img
-    cv2.imwrite('data/processed_word_gird.jpg', morphed_elipse_close_inv1)
+    cv2.imwrite('data/processed_word_grid.jpg', morphed_elipse_close_inv1)
 
 
 
+ocr('data/krstozbor (1).jpg')
+subprocess_result = subprocess.run(['tesseract', 'data/processed_word_grid.jpg', 'data/tesseract_text', '-l', 'mkd', '-psm', '11'], capture_output=True, text=True)
+print(f'Stdout: {subprocess_result.stdout}')
+print(f'Stderr: {subprocess_result.stderr}')
+#
+matrix = preprocess(r'data/tesseract_text.txt')
+loop_through_letters(matrix, 'канада')
 
-matrix = preprocess(r'C:\Users\dis\Desktop\krstozbor_procesiran - Copy.txt')
-loop_through_letters(matrix, 'lepak')
+# subprocess_result = subprocess.run(['tesseract', 'data/processed_word_gird.jpg', 'data/tesseract_text', '-l', 'mkd', '-psm', '11'], capture_output=True, text=True)
+# print(f'Stdout: {subprocess_result.stdout}')
+# print(f'Stderr: {subprocess_result.stderr}')
