@@ -4,7 +4,7 @@ import cv2
 import numpy as np
 import matplotlib.pyplot as plt
 import subprocess
-def preprocess(txt_path):
+def text_preprocess(txt_path):
     import re
     with open(txt_path, mode='r', encoding='utf-8')as f:
         ocr_text_lines = [re.sub(r'[\W\d\s]', '', line).lower() for line in f.readlines() if line.strip() != '']
@@ -51,6 +51,8 @@ def search_till_end(word_grid, curr_coord, direction, search_word):
 
 def print_found_matches(word_grid, locations):
     wg = copy.copy(word_grid)
+    if locations[0][0] == locations[-1][0] and locations[0][1] < locations[-1][1]:
+        locations.reverse() # if the found match is a horizontal one, going left to right, the code will put multiple "()" at the same place because the string changes when parenthesis are inserted, reverse fixes it
     for loc in locations:
         wg[loc[0]] = wg[loc[0]][:loc[1]] + '(' + wg[loc[0]][loc[1]] + ')' + wg[loc[0]][loc[1]+1:]
     print('\n'.join(wg))
@@ -74,7 +76,7 @@ def loop_through_letters(word_grid, search_word, search_half_word=True):
                             found_coords.insert(0, (row_idx, col_idx))
                             print_found_matches(word_grid, found_coords)
 
-def ocr(path):
+def img_preprocess(path):
     # img = cv2.imread(path)
     # img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
     img_gray = cv2.imread(path, cv2.IMREAD_GRAYSCALE)
@@ -128,20 +130,30 @@ def ocr(path):
 
 
 parser = argparse.ArgumentParser()
+# subparsers = parser.add_subparsers()
+# parser_ocr = subparsers.add_parser('apply-ocr', help='This command will run OCR on an image and will produce a text file.')
+parser
 parser.add_argument('--img-path', dest='img_path', required=False, type=str, help='Path to an image where the ocr algorithm will try to extract letters')
-parser.add_argument('--text-path', dest='text_path', required=False, type=str, help='Path to a text file which contains words in a MxN, or NxN grid.')
-parser.add_argument('--tesseract-lang', dest='tesseract_lang', required=False, type=str, help='Language to use for tesseract. Ex: "mkd" to search words in macedonian')
+parser.add_argument('--tesseract-langs', dest='tesseract_langs', required=False, type=str, help='List of languages to use for tesseract. Ex: "mkd" to search words in macedonian, and eng+mkd to use both english and macedonian. Other langauges can be appended with "+"', default='eng', nargs='*')
+
+
+# parser_algo = subparsers.add_parser('run-word-search', help='This command will search for the given words in a text file')
+parser.add_argument('--text-path', dest='text_path', required=False, type=str, help='Path to a text file which contains words in a MxN, or NxN grid.', default='data/tesseract_text.txt')
+parser.add_argument('--search-words', dest='search_words', required=False, help='List of search words to look for in the word grid (seperated by space)', nargs='+')
+parser.add_argument('--search-half-words', dest='search_half_words', required=False, action='store_true', help='List of search words to look for in the word grid (seperated by space)')
+
 
 args = parser.parse_args()
 
 if args.img_path:
-    ocr(args.img_path)
-    if args.tesseract_lang:
-        language = args.tesseract_lang
-    else:
-        language = 'eng'
-    subprocess_result = subprocess.run(['tesseract', 'data/processed_word_grid.jpg', 'data/tesseract_text', '-l', language, '-psm', '11'], capture_output=True, text=True)
+    img_preprocess(args.img_path)
+    subprocess_result = subprocess.run(['tesseract', 'data/processed_word_grid.jpg', 'data/tesseract_text', '-l', '+'.join(args.tesseract_langs), '-psm', '11'], capture_output=True, text=True)
     print(f'Stdout: {subprocess_result.stdout}')
     print(f'Stderr: {subprocess_result.stderr}')
 if args.text_path:
-    # subprocess_result = subprocess.run(['tesseract', 'data/processed_word_grid.jpg', 'data/tesseract_text', '-l', 'mkd', '-psm', '11'], capture_output=True, text=True)
+    matrix = text_preprocess(args.text_path)
+    if args.search_words:
+        words_to_search = args.search_words
+        for word in words_to_search:
+            print(f'Word found: {word}\n')
+            loop_through_letters(matrix, word, args.search_half_words)
