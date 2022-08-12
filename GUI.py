@@ -1,14 +1,14 @@
 import sys, subprocess
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import QPixmap
-from OCR import preproces_image
+from imagePreprocessing import preproces_image
 
 class CrosswordSolver(QWidget):
 
     def __init__(self, parent = None):
         super().__init__(parent)
         self.crosswordPicturePath = None
-        self.processedImagePath = "processed_image"
+        self.processedImagePath = 'processed_image.jpg'
         self.imageHolder = QLabel(self)
         self.setWindowTitle('PyQt5 App')
         self.setGeometry(100, 100, 280, 80)
@@ -19,13 +19,6 @@ class CrosswordSolver(QWidget):
         self.layout.addWidget(chooseCrosswordPicBtn)
         chooseCrosswordPicBtn.clicked.connect(self.setPictureFileName)
 
-        preproces_image(self.crosswordPicturePath)
-
-        # run the OCR
-        subprocess_result = subprocess.run(
-            ['tesseract', self.processedImagePath, 'tesseract_text', '-l', 'mkd', '-psm', '11'], capture_output=True, text=True)
-        print(f'Tesseract Stdout: {subprocess_result.stdout}')
-        print(f'Tesseract Stderr: {subprocess_result.stderr}')
 
         # put input text widget to search for all the words
 
@@ -33,10 +26,20 @@ class CrosswordSolver(QWidget):
 
         # Process to find words againts txt file (review your code if it works
         # )
+
+
     def setPictureFileName(self):
         self.crosswordPicturePath = QFileDialog.getOpenFileName()[0]
         self.imageHolder.setPixmap(QPixmap(self.crosswordPicturePath))
         self.layout.addWidget(self.imageHolder)
+        preproces_image(self.crosswordPicturePath)
+        print(f"'{self.crosswordPicturePath}'")
+        subprocess_result = subprocess.run(
+            ['tesseract', self.processedImagePath, 'tesseract_text', '-l', 'mkd', '-psm', '11'], capture_output=True,
+            text=True, encoding="UTF-8")
+        print(f'Tesseract Stdout: {subprocess_result.stdout}')
+        print(f'Tesseract Stderr: {subprocess_result.stderr}')
+
 
 
 app = QApplication([])

@@ -1,21 +1,16 @@
 import cv2
 import numpy as np
-import matplotlib.pyplot as plt
-
 
 
 def preproces_image(img_path):
+
     img_gray = cv2.imread(img_path, cv2.IMREAD_GRAYSCALE)
+    # numpy uses (height, width) as image shape order
+    aspect_ratio = img_gray.shape[1]/img_gray.shape[0]
+    # resizing the image so we the image size doesn't affect quality of image processing (blur, kernels, etc)
+    img_resized = cv2.resize(img_gray, dsize=(int(500 * aspect_ratio), 500))
 
-    def show_pic(img, gray=False):
-        fig = plt.figure(figsize=(15, 15))
-        ax = fig.add_subplot(111)
-        if gray:
-            ax.imshow(img, cmap='gray')
-        else:
-            ax.imshow(img)
-
-    blurred_img = cv2.blur(img_gray, (11, 11))
+    blurred_img = cv2.blur(img_resized, (5, 5))
     hist_equal = cv2.equalizeHist(blurred_img)
 
     # thresh_img = cv2.bitwise_not(hist_equal) THIS OR THIS BELOW
@@ -33,4 +28,4 @@ def preproces_image(img_path):
     # morph erode
     # morphed_elipse_close_inv1 = cv2.morphologyEx(morphed_elipse_close_inv, cv2.MORPH_ERODE, elipse_kernel, iterations=8)
 
-    cv2.imwrite('processed_image.jpg', morphed_elipse_close_inv)
+    cv2.imwrite('processed_image.jpg', thresh_img)
