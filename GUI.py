@@ -1,14 +1,18 @@
 import sys, subprocess
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import QPixmap
+from PyQt5.QtCore import QRect, QSize
 from imagePreprocessing import ImgPreprocessing
 from textPreprocessing import TextPreprocessing
+from PyQt5.QtGui import QIntValidator
 
 class CrosswordSolver(QWidget):
 
     def __init__(self, parent=None):
         super().__init__(parent)
-
+        self.cropArea = None
+        self.initialClickPos = None
+        self.resultText = ""
         self.txtPreprocess = TextPreprocessing("tesseract_text.txt")
         self.crosswordPicturePath = None
         self.processedImagePath = 'processed_image.jpg'
@@ -35,17 +39,35 @@ class CrosswordSolver(QWidget):
         self.layout.addWidget(self.searchWordsBtn)
         self.searchWordsBtn.clicked.connect(self.searchForWords)
 
+        # Columns in word word field
+        self.columnLabel = QLabel(self)
+        self.columnLabel.setText("How many columns does the word grid have?")
+        self.layout.addWidget(self.columnLabel)
+        self.columnsField = QSpinBox(self)
+        self.columnsField.setValue(10)
+        self.columnsField.setMaximumWidth(100)
+        self.layout.addWidget(self.columnsField)
+
+        # Displaying results
+        self.resultLabel = QLabel(self)
+        self.layout.addWidget(self.resultLabel)
 
     def searchForWords(self):
         words = self.textBox.toPlainText().split(' ')
+        result = ""
         for word in words:
-            self.txtPreprocess.search(word)
+            foundWord = self.txtPreprocess.search(word)
+            if foundWord:
+                result += foundWord
+        self.resultText = result
+        self.resultLabel.setText(self.resultText)
+
 
     def processImage(self):
         selectedImgPath = QFileDialog.getOpenFileName()[0]
         if selectedImgPath:
             self.crosswordPicturePath = selectedImgPath
-            ImgPreprocessing.preproces_image(self.crosswordPicturePath)
+            ImgPreprocessing.preproces_image(self.crosswordPicturePath, self.columnsField.value())
             self.imageHolder.setPixmap(QPixmap("resized_img.jpg"))
 
             print(f"'{self.crosswordPicturePath}'")
@@ -57,6 +79,20 @@ class CrosswordSolver(QWidget):
 
             self.searchWordsBtn.setDisabled(False)
 
+    def mousePressEvent(self, event):
+        origin = event.pos()
+        self.initialClickPos = origin
+        self.cropArea = QRubberBand(QRubberBand.Rectangle, self)
+        self.cropArea.setGeometry(QRect(origin, QSize()))
+        self.cropArea.show()
+
+    def mouseMoveEvent(self, event):
+        self.cropArea.setGeometry(QRect(self.initialClickPos, event.pos()).normalized())
+
+    # def mouseReleaseEvent(self, event):
+    #     self.rubberBand.hide()
+    #     # determine selection, for example using QRect.intersects()
+    #     # and QRect.contains().
 
 app = QApplication([])
 

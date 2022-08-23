@@ -53,8 +53,10 @@ class TextPreprocessing:
             locations.reverse()  # if the found match is a horizontal one, going left to right, the code will put multiple "()" at the same place because the string changes when parenthesis are inserted, reverse fixes it
         for loc in locations:
             wg[loc[0]] = wg[loc[0]][:loc[1]] + '(' + wg[loc[0]][loc[1]] + ')' + wg[loc[0]][loc[1] + 1:]
-        print('\n'.join(wg))
-        print('\n---------------\n')
+        result = ""
+        result += '\n'.join(wg)
+        result += '\n---------------\n'
+        return result
 
     def loop_through_letters(self, word_grid, word):
         for row_idx, row in enumerate(word_grid):
@@ -66,8 +68,8 @@ class TextPreprocessing:
                         found_coords = self.search_till_end(word_grid, (row_idx, col_idx), direction, word[1:])
                         if found_coords:
                             found_coords.insert(0, (row_idx, col_idx))
-                            self.print_found_matches(word_grid, found_coords)
+                            return self.print_found_matches(word_grid, found_coords)
 
     def search(self, word):
         matrix = self.text_preprocess(self.textPath)
-        self.loop_through_letters(matrix, word)
+        return self.loop_through_letters(matrix, word)
