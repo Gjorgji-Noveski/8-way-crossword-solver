@@ -1,8 +1,4 @@
 import copy
-import cv2
-import numpy as np
-import matplotlib.pyplot as plt
-
 
 class TextPreprocessing:
 
@@ -14,7 +10,7 @@ class TextPreprocessing:
         with open(txt_path, mode='r', encoding='utf-8')as f:
             ocr_text_lines = [re.sub(r'[\W\d\s]', '', line).lower() for line in f.readlines() if line.strip() != '']
             ocr_text_lines = [line for line in ocr_text_lines if line != '']
-        with open('data/after_preprocessing.txt', encoding='utf-8', mode='w') as wf:
+        with open("after_preprocessing.txt", encoding='utf-8', mode='w') as wf:
             wf.write('\n'.join(ocr_text_lines))
         return ocr_text_lines
 
