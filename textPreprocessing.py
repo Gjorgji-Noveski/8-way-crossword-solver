@@ -57,7 +57,7 @@ class TextPreprocessing:
         result += '\n'.join(wg)
         result += '\n---------------\n'
         return result
-
+    # TODO: IT RETURNS ONLY ONE POSSIBLE MATCH, DOESN'T RETURN ALL OF THEM, check it out
     def loop_through_letters(self, word_grid, word):
         for row_idx, row in enumerate(word_grid):
             for col_idx, curr_letter in enumerate(row):

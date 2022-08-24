@@ -2,17 +2,19 @@ import sys, subprocess
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import QPixmap
 from PyQt5.QtCore import QRect, QSize
+
 from imagePreprocessing import ImgPreprocessing
 from textPreprocessing import TextPreprocessing
-from PyQt5.QtGui import QIntValidator
+from overridenFunctionalities import PlainTextEdit
+
 
 class CrosswordSolver(QWidget):
 
-    def __init__(self, parent=None):
+    def __init__(self, screen, parent=None):
         super().__init__(parent)
         self.cropArea = None
         self.initialClickPos = None
-        self.resultText = ""
+        self.languageSelectedIdx = None  # 1 is Macedonian, 2 is English
         self.txtPreprocess = TextPreprocessing("tesseract_text.txt")
         self.crosswordPicturePath = None
         self.processedImagePath = 'processed_image.jpg'
@@ -21,6 +23,17 @@ class CrosswordSolver(QWidget):
         self.setGeometry(100, 100, 280, 80)
         self.move(400, 400)
         self.layout = QVBoxLayout(self)
+        self.layout.addWidget(self)
+
+        # Language button
+        self.languageLabel = QLabel(self)
+        self.languageLabel.setText("What is the language of the letters in the word grid?")
+        self.layout.addWidget(self.languageLabel)
+        self.languageSelectBox = QComboBox(self)
+        self.languageSelectBox.setFixedWidth(int(screen.availableSize().width() * 0.08))  # 10$ of the screen's width
+        self.languageSelectBox.addItem("Macedonian (MK)", "mkd")
+        self.languageSelectBox.addItem("English (EN)", "eng")
+        self.layout.addWidget(self.languageSelectBox)
 
         self.layout.addWidget(self.imageHolder)
 
@@ -29,8 +42,9 @@ class CrosswordSolver(QWidget):
         chooseCrosswordPicBtn.clicked.connect(self.processImage)
 
         # Input text widget
-        self.textBox = QPlainTextEdit(self)
+        self.textBox = PlainTextEdit(self)
         self.textBox.setPlaceholderText("Insert search words separated by space, ex: tree cat sky")
+        self.textBox.setMaximumHeight(200)
         self.layout.addWidget(self.textBox)
 
         # Search Words button
@@ -45,25 +59,34 @@ class CrosswordSolver(QWidget):
         self.layout.addWidget(self.columnLabel)
         self.columnsField = QSpinBox(self)
         self.columnsField.setValue(10)
-        self.columnsField.setMaximumWidth(100)
+        self.columnsField.setMaximumWidth(int(screen.availableSize().width() * 0.04))
         self.layout.addWidget(self.columnsField)
 
         # Displaying results
         self.resultLabel = QLabel(self)
+        self.resultsLabelInfoText = QLabel(self)
+        self.resultsLabelInfoText.setText("Results from search are:")
+        self.layout.addWidget(self.resultsLabelInfoText)
         self.layout.addWidget(self.resultLabel)
+        self.resultLabel.setMinimumHeight(int(screen.availableSize().height() * 0.1))
 
     def searchForWords(self):
-        words = self.textBox.toPlainText().split(' ')
+        words = set()
+        for element in self.textBox.toPlainText().split(' '):
+            words.add(element)
         result = ""
         for word in words:
+            if word.strip() == '':
+                continue
             foundWord = self.txtPreprocess.search(word)
             if foundWord:
                 result += foundWord
-        self.resultText = result
-        self.resultLabel.setText(self.resultText)
-
+        if result == "":
+            result += "No matches found"
+        self.resultLabel.setText(result)
 
     def processImage(self):
+
         selectedImgPath = QFileDialog.getOpenFileName()[0]
         if selectedImgPath:
             self.crosswordPicturePath = selectedImgPath
@@ -72,7 +95,8 @@ class CrosswordSolver(QWidget):
 
             print(f"'{self.crosswordPicturePath}'")
             subprocess_result = subprocess.run(
-                ['tesseract', self.processedImagePath, 'tesseract_text', '-l', 'mkd', '-psm', '6'], capture_output=True,
+                ['tesseract', self.processedImagePath, 'tesseract_text', '-l', self.languageSelectBox.currentData(),
+                 '-psm', '6'], capture_output=True,
                 text=True, encoding="UTF-8")
             print(f'Tesseract Stdout: {subprocess_result.stdout}')
             print(f'Tesseract Stderr: {subprocess_result.stderr}')
@@ -94,8 +118,9 @@ class CrosswordSolver(QWidget):
     #     # determine selection, for example using QRect.intersects()
     #     # and QRect.contains().
 
+
 app = QApplication([])
 
-myCrosswordSolverWidget = CrosswordSolver()
+myCrosswordSolverWidget = CrosswordSolver(app.primaryScreen())
 myCrosswordSolverWidget.show()
 sys.exit(app.exec_())
