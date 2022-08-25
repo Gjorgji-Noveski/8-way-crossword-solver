@@ -14,7 +14,7 @@ class CrosswordSolver(QWidget):
         super().__init__(parent)
         self.cropArea = None
         self.initialClickPos = None
-        self.languageSelectedIdx = None  # 1 is Macedonian, 2 is English
+        self.languageSelectedIdx = None
         self.txtPreprocess = TextPreprocessing("tesseract_text.txt")
         self.crosswordPicturePath = None
         self.processedImagePath = 'processed_image.jpg'
@@ -33,6 +33,7 @@ class CrosswordSolver(QWidget):
         self.languageSelectBox.setFixedWidth(int(screen.availableSize().width() * 0.08))  # 10$ of the screen's width
         self.languageSelectBox.addItem("Macedonian (MK)", "mkd")
         self.languageSelectBox.addItem("English (EN)", "eng")
+        self.languageSelectBox.currentIndexChanged.connect(self.rerunOcr)
         self.layout.addWidget(self.languageSelectBox)
 
         self.layout.addWidget(self.imageHolder)
@@ -70,6 +71,11 @@ class CrosswordSolver(QWidget):
         self.layout.addWidget(self.resultLabel)
         self.resultLabel.setMinimumHeight(int(screen.availableSize().height() * 0.1))
 
+
+    def rerunOcr(self):
+        if self.crosswordPicturePath:
+            self.runOCR()
+
     def searchForWords(self):
         words = set()
         for element in self.textBox.toPlainText().split(' '):
@@ -86,26 +92,31 @@ class CrosswordSolver(QWidget):
         self.resultLabel.setText(result)
 
     def processImage(self):
-
         selectedImgPath = QFileDialog.getOpenFileName()[0]
         if selectedImgPath:
             self.crosswordPicturePath = selectedImgPath
             ImgPreprocessing.preproces_image(self.crosswordPicturePath, self.columnsField.value())
             self.imageHolder.setPixmap(QPixmap("resized_img.jpg"))
-
-            print(f"'{self.crosswordPicturePath}'")
-            subprocess_result = subprocess.run(
-                ['tesseract', self.processedImagePath, 'tesseract_text', '-l', self.languageSelectBox.currentData(),
-                 '-psm', '6'], capture_output=True,
-                text=True, encoding="UTF-8")
-            print(f'Tesseract Stdout: {subprocess_result.stdout}')
-            print(f'Tesseract Stderr: {subprocess_result.stderr}')
-
+            self.runOCR()
             self.searchWordsBtn.setDisabled(False)
 
+    def runOCR(self):
+        subprocess_result = subprocess.run(
+            ['tesseract', self.processedImagePath, 'tesseract_text', '-l', self.languageSelectBox.currentData(),
+             '-psm', '6'], capture_output=True,
+            text=True, encoding="UTF-8")
+        print(f'Tesseract Stdout: {subprocess_result.stdout}')
+        print(f'Tesseract Stderr: {subprocess_result.stderr}')
+
     def mousePressEvent(self, event):
+        print(f'Mouse clicked: {event.pos()}')
         origin = event.pos()
         self.initialClickPos = origin
+        ## SMTH WIERD HAPPENS WHEN I PUT PARENT OF RUBBER BAND TO IMAGE HOLDER INSTEAD OF MAIN WIDGET
+        # if it has no parenmt QRubberBand(QRubberBand.Rectangle), then when i click it shows the area calculating from the MAIN SCREEN
+
+        # Try taking a screneshow of the area under the crop zone
+        print(f'img: {self.imageHolder.rect()}')
         self.cropArea = QRubberBand(QRubberBand.Rectangle, self)
         self.cropArea.setGeometry(QRect(origin, QSize()))
         self.cropArea.show()
@@ -113,10 +124,12 @@ class CrosswordSolver(QWidget):
     def mouseMoveEvent(self, event):
         self.cropArea.setGeometry(QRect(self.initialClickPos, event.pos()).normalized())
 
-    # def mouseReleaseEvent(self, event):
-    #     self.rubberBand.hide()
-    #     # determine selection, for example using QRect.intersects()
-    #     # and QRect.contains().
+    def mouseReleaseEvent(self, event):
+        self.cropArea.hide()
+        print(f'cropped area after realese:{self.cropArea.rect()}')
+        self.imageHolder.setPixmap(self.imageHolder.pixmap().copy(self.cropArea.geometry()))
+        self.cropArea.deleteLater()
+        # print(self.children())
 
 
 app = QApplication([])
