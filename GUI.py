@@ -5,20 +5,18 @@ from PyQt5.QtCore import QRect, QSize
 
 from imagePreprocessing import ImgPreprocessing
 from textPreprocessing import TextPreprocessing
-from overridenFunctionalities import PlainTextEdit
+from overridenFunctionalities import PlainTextEdit, ImageHolder
 
 
 class CrosswordSolver(QWidget):
 
     def __init__(self, screen, parent=None):
         super().__init__(parent)
-        self.cropArea = None
-        self.initialClickPos = None
         self.languageSelectedIdx = None
         self.txtPreprocess = TextPreprocessing("tesseract_text.txt")
         self.crosswordPicturePath = None
         self.processedImagePath = 'processed_image.jpg'
-        self.imageHolder = QLabel(self)
+        self.imageHolder = ImageHolder(self)
         self.setWindowTitle('PyQt5 App')
         self.setGeometry(100, 100, 280, 80)
         self.move(400, 400)
@@ -71,7 +69,6 @@ class CrosswordSolver(QWidget):
         self.layout.addWidget(self.resultLabel)
         self.resultLabel.setMinimumHeight(int(screen.availableSize().height() * 0.1))
 
-
     def rerunOcr(self):
         if self.crosswordPicturePath:
             self.runOCR()
@@ -91,11 +88,14 @@ class CrosswordSolver(QWidget):
             result += "No matches found"
         self.resultLabel.setText(result)
 
+    def runImgPreprocessing(self):
+        ImgPreprocessing.preproces_image(self.crosswordPicturePath, self.columnsField.value())
+
     def processImage(self):
         selectedImgPath = QFileDialog.getOpenFileName()[0]
         if selectedImgPath:
             self.crosswordPicturePath = selectedImgPath
-            ImgPreprocessing.preproces_image(self.crosswordPicturePath, self.columnsField.value())
+            self.runImgPreprocessing()
             self.imageHolder.setPixmap(QPixmap("resized_img.jpg"))
             self.runOCR()
             self.searchWordsBtn.setDisabled(False)
@@ -108,32 +108,9 @@ class CrosswordSolver(QWidget):
         print(f'Tesseract Stdout: {subprocess_result.stdout}')
         print(f'Tesseract Stderr: {subprocess_result.stderr}')
 
-    def mousePressEvent(self, event):
-        print(f'Mouse clicked: {event.pos()}')
-        origin = event.pos()
-        self.initialClickPos = origin
-        ## SMTH WIERD HAPPENS WHEN I PUT PARENT OF RUBBER BAND TO IMAGE HOLDER INSTEAD OF MAIN WIDGET
-        # if it has no parenmt QRubberBand(QRubberBand.Rectangle), then when i click it shows the area calculating from the MAIN SCREEN
-
-        # Try taking a screneshow of the area under the crop zone
-        print(f'img: {self.imageHolder.rect()}')
-        self.cropArea = QRubberBand(QRubberBand.Rectangle, self)
-        self.cropArea.setGeometry(QRect(origin, QSize()))
-        self.cropArea.show()
-
-    def mouseMoveEvent(self, event):
-        self.cropArea.setGeometry(QRect(self.initialClickPos, event.pos()).normalized())
-
-    def mouseReleaseEvent(self, event):
-        self.cropArea.hide()
-        print(f'cropped area after realese:{self.cropArea.rect()}')
-        self.imageHolder.setPixmap(self.imageHolder.pixmap().copy(self.cropArea.geometry()))
-        self.cropArea.deleteLater()
-        # print(self.children())
-
 
 app = QApplication([])
 
-myCrosswordSolverWidget = CrosswordSolver(app.primaryScreen())
+myCrosswordSolverWidget = CrosswordSolver(app.primaryScreen(), parent=app.parent())
 myCrosswordSolverWidget.show()
 sys.exit(app.exec_())

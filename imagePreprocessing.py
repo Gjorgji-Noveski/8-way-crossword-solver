@@ -11,7 +11,6 @@ class ImgPreprocessing:
     ratio = 52
     @classmethod
     def calc_dim_with_aspect_ratio(cls, img_shape, col_count):
-        # size = 400
         # numpy uses (height, width) as image shape order. The image opened with OpenCV are stored as numpy array
         aspect_ratio = img_shape[1] / img_shape[0]
         size = int((cls.ratio * col_count) / aspect_ratio)
