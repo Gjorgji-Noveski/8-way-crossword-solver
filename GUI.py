@@ -1,11 +1,13 @@
-import sys, subprocess
+import subprocess
+import sys
+
+from PyQt5.QtCore import Qt
+from PyQt5.QtGui import QPixmap,QFont
 from PyQt5.QtWidgets import *
-from PyQt5.QtGui import QPixmap
-from PyQt5.QtCore import QRect, QSize
 
 from imagePreprocessing import ImgPreprocessing
-from textPreprocessing import TextPreprocessing
 from overridenFunctionalities import PlainTextEdit, ImageHolder
+from textPreprocessing import TextPreprocessing
 
 
 class CrosswordSolver(QWidget):
@@ -16,12 +18,15 @@ class CrosswordSolver(QWidget):
         self.txtPreprocess = TextPreprocessing("tesseract_text.txt")
         self.crosswordPicturePath = None
         self.processedImagePath = 'processed_image.jpg'
+        self.resizedImagePath = 'resized_image.jpg'
+
         self.imageHolder = ImageHolder(self)
         self.setWindowTitle('PyQt5 App')
         self.setGeometry(100, 100, 280, 80)
         self.move(400, 400)
         self.layout = QVBoxLayout(self)
         self.layout.addWidget(self)
+        self.scrollArea = None
 
         # Language button
         self.languageLabel = QLabel(self)
@@ -38,7 +43,7 @@ class CrosswordSolver(QWidget):
 
         chooseCrosswordPicBtn = QPushButton("Choose picture")
         self.layout.addWidget(chooseCrosswordPicBtn)
-        chooseCrosswordPicBtn.clicked.connect(self.processImage)
+        chooseCrosswordPicBtn.clicked.connect(self.dialogSelectImage)
 
         # Input text widget
         self.textBox = PlainTextEdit(self)
@@ -63,11 +68,19 @@ class CrosswordSolver(QWidget):
 
         # Displaying results
         self.resultLabel = QLabel(self)
+        self.resultLabel.setFont(QFont("Arial", 15))
+        self.resultLabel.setWordWrap(True)
+        self.resultLabel.setAlignment(Qt.AlignLeft | Qt.AlignTop)
         self.resultsLabelInfoText = QLabel(self)
         self.resultsLabelInfoText.setText("Results from search are:")
         self.layout.addWidget(self.resultsLabelInfoText)
-        self.layout.addWidget(self.resultLabel)
+        #self.layout.addWidget(self.resultLabel)
         self.resultLabel.setMinimumHeight(int(screen.availableSize().height() * 0.1))
+
+        self.scrollArea = QScrollArea(self)
+        self.scrollArea.setWidgetResizable(True)
+        self.scrollArea.setWidget(self.resultLabel)
+        self.layout.addWidget(self.scrollArea)
 
     def rerunOcr(self):
         if self.crosswordPicturePath:
@@ -88,15 +101,15 @@ class CrosswordSolver(QWidget):
             result += "No matches found"
         self.resultLabel.setText(result)
 
-    def runImgPreprocessing(self):
-        ImgPreprocessing.preproces_image(self.crosswordPicturePath, self.columnsField.value())
+    def runImgPreprocessing(self, picture_path):
+        ImgPreprocessing.preproces_image(picture_path, self.columnsField.value())
 
-    def processImage(self):
+    def dialogSelectImage(self):
         selectedImgPath = QFileDialog.getOpenFileName()[0]
         if selectedImgPath:
             self.crosswordPicturePath = selectedImgPath
-            self.runImgPreprocessing()
-            self.imageHolder.setPixmap(QPixmap("resized_img.jpg"))
+            self.runImgPreprocessing(self.crosswordPicturePath)
+            self.imageHolder.setPixmap(QPixmap(self.resizedImagePath))
             self.runOCR()
             self.searchWordsBtn.setDisabled(False)
 

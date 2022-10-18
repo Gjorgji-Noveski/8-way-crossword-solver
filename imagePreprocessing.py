@@ -24,7 +24,8 @@ class ImgPreprocessing:
         # used just for displaying on interface
         img_color_resized = cv2.resize(img_color,
                                        dsize=cls.calc_dim_with_aspect_ratio(img_color.shape, col_count))
-        cv2.imwrite('resized_img.jpg', img_color_resized)
+        print(cls.calc_dim_with_aspect_ratio(img_color.shape, col_count))
+        cv2.imwrite('resized_image.jpg', img_color_resized)
 
         img_gray = cv2.imread(img_path, cv2.IMREAD_GRAYSCALE)
 

@@ -47,7 +47,7 @@ class TextPreprocessing:
             return found_coords
         return []
 
-    def print_found_matches(self, word_grid, locations):
+    def create_result_text(self, word_grid, locations):
         wg = copy.copy(word_grid)
         if locations[0][0] == locations[-1][0] and locations[0][1] < locations[-1][1]:
             locations.reverse()  # if the found match is a horizontal one, going left to right, the code will put multiple "()" at the same place because the string changes when parenthesis are inserted, reverse fixes it
@@ -57,8 +57,9 @@ class TextPreprocessing:
         result += '\n'.join(wg)
         result += '\n---------------\n'
         return result
-    # TODO: IT RETURNS ONLY ONE POSSIBLE MATCH, DOESN'T RETURN ALL OF THEM, check it out
+    
     def loop_through_letters(self, word_grid, word):
+        result_text = []
         for row_idx, row in enumerate(word_grid):
             for col_idx, curr_letter in enumerate(row):
                 if curr_letter == word[0]:
@@ -68,7 +69,10 @@ class TextPreprocessing:
                         found_coords = self.search_till_end(word_grid, (row_idx, col_idx), direction, word[1:])
                         if found_coords:
                             found_coords.insert(0, (row_idx, col_idx))
-                            return self.print_found_matches(word_grid, found_coords)
+
+                            result_text.append(self.create_result_text(word_grid, found_coords))
+        return "\n".join(result_text)
+
 
     def search(self, word):
         matrix = self.text_preprocess(self.textPath)

@@ -12,8 +12,11 @@ class PlainTextEdit(QPlainTextEdit):
             return
         super().keyPressEvent(event)
 
-#TODO: problem: start program, open tall image krstozbor(1).jpg, reside window of widget for fullscreen, crop, and you will see it doesnt get cropped correctly
-# This happens only for the tall pic, for the krsozbor clean.jpg it doesnt happen
+
+# TODO: problem: start program, open tall image krstozbor(1).jpg, reside window of widget for fullscreen, crop, and you will see it doesnt get cropped correctly
+# This happens only for the tall pic, for the krsozbor clean.jpg it doesnt happen.
+# Also after cropping it saves the picture under the one it opened
+
 
 """
 THIS MAKES problem with the crop after full window resize
@@ -22,6 +25,8 @@ self.setpixmap(self.pixmap().copy(Qrect(self.geometry().intersected(self.cropAre
 THIS DOESNT
 self.setpixmap(self.pixmap().copy(self.cropArea.geometry())
 """
+
+
 class ImageHolder(QLabel):
 
     def __init__(self, parent=None):
@@ -46,8 +51,9 @@ class ImageHolder(QLabel):
         print(f'cropped area after realese:{self.cropArea.rect()}')
         newImg = self.pixmap().copy(self.cropArea.geometry())
         self.setPixmap(newImg)
-        newImg.save(self.parent.crosswordPicturePath)
+        newImg.save(self.parent.resizedImagePath)
         self.cropArea.deleteLater()
 
-        self.parent.runImgPreprocessing()
+        self.parent.runImgPreprocessing(self.parent.resizedImagePath)
+        self.parent.rerunOcr()
         # print(self.children())
