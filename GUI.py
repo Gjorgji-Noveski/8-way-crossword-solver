@@ -25,39 +25,47 @@ class CrosswordSolver(QWidget):
         self.setGeometry(100, 100, 280, 80)
         self.move(400, 400)
         self.layout = QVBoxLayout(self)
-        self.layout.addWidget(self)
         self.scrollArea = None
 
         # Layouts
-        self.subLayout1h = QHBoxLayout(self)
-        self.subLayout1hChild1 = QVBoxLayout(self)
-        self.subLayout1hChild2 = QVBoxLayout(self)
-        self.subLayout1h.addLayout(self.subLayout1hChild1)
-        separatorLine = QFrame()
-        separatorLine.setFrameShape(QFrame.VLine)
-        separatorLine.setSizePolicy(QSizePolicy.Minimum,QSizePolicy.Expanding)
-        separatorLine.setLineWidth(3)
+        frame1 = QFrame(self)
+        frame1.setFrameShape(QFrame.Box)
+        # frame.setSizePolicy(QSizePolicy.Minimum, QSizePolicy.Expanding)
+        frame1.setLineWidth(3)
 
-        self.subLayout1h.addWidget(separatorLine)
-        self.subLayout1h.addLayout(self.subLayout1hChild2)
+        frame2 = QFrame(self)
+        frame2.setFrameShape(QFrame.Box)
+        # frame.setSizePolicy(QSizePolicy.Minimum, QSizePolicy.Expanding)
+        frame2.setLineWidth(3)
+
+        # frame2 = QFrame(self)
+        # frame2.setFrameShape(QFrame.Box)
+        # # frame.setSizePolicy(QSizePolicy.Minimum, QSizePolicy.Expanding)
+        # frame2.setLineWidth(3)
+
+        self.subLayout1h = QHBoxLayout(self)
+        self.subLayout1hChild1 = QVBoxLayout(frame1)
+        self.subLayout1hChild2 = QVBoxLayout(frame2)
+
         self.subLayout1hChild1.setAlignment(Qt.AlignLeft)
         self.subLayout1hChild2.setAlignment(Qt.AlignLeft)
 
-        self.subLayout1h.setStretch(1, 1)  # This fixes the layout in place, so the widgets don't move
+        self.subLayout1h.addWidget(frame1)
+        self.subLayout1h.addWidget(frame2)
+        # self.subLayout1h.setStretch(1, 1)  # This fixes the layout in place, so the widgets don't move
 
 
 
         self.subLayout2h = QHBoxLayout(self)
-        self.subLayout2hChild1 = QVBoxLayout(self)
-        self.subLayout2hChild2 = QVBoxLayout(self)
-        self.subLayout2h.addLayout(self.subLayout2hChild1)
-        self.subLayout2h.addLayout(self.subLayout2hChild2)
-
         self.subLayout3h = QHBoxLayout(self)
+        self.subLayout4h = QHBoxLayout(self)
+
 
         self.layout.addLayout(self.subLayout1h)
         self.layout.addLayout(self.subLayout2h)
         self.layout.addLayout(self.subLayout3h)
+        self.layout.addLayout(self.subLayout4h)
+
 
         # Language button
         self.languageLabel = QLabel(self)
@@ -70,22 +78,22 @@ class CrosswordSolver(QWidget):
         self.languageSelectBox.currentIndexChanged.connect(self.rerunOcr)
         self.subLayout1hChild1.addWidget(self.languageSelectBox)
 
-        self.subLayout2hChild1.addWidget(self.imageHolder)
+        self.subLayout2h.addWidget(self.imageHolder)
 
         chooseCrosswordPicBtn = QPushButton("Choose picture")
-        self.subLayout2hChild1.addWidget(chooseCrosswordPicBtn)
+        self.subLayout3h.addWidget(chooseCrosswordPicBtn)
         chooseCrosswordPicBtn.clicked.connect(self.dialogSelectImage)
 
         # Input text widget
         self.textBox = PlainTextEdit(self)
         self.textBox.setPlaceholderText("Insert search words separated by space, ex: tree cat sky")
         self.textBox.setMaximumHeight(200)
-        self.subLayout2hChild2.addWidget(self.textBox)
+        self.subLayout2h.addWidget(self.textBox)
 
         # Search Words button
         self.searchWordsBtn = QPushButton("Search words")
         self.searchWordsBtn.setDisabled(True)
-        self.subLayout2hChild2.addWidget(self.searchWordsBtn)
+        self.subLayout3h.addWidget(self.searchWordsBtn)
         self.searchWordsBtn.clicked.connect(self.searchForWords)
 
         # Columns in word word field
@@ -104,7 +112,7 @@ class CrosswordSolver(QWidget):
         self.resultLabel.setAlignment(Qt.AlignLeft | Qt.AlignTop)
         self.resultsLabelInfoText = QLabel(self)
         self.resultsLabelInfoText.setText("Results from search are:")
-        self.subLayout3h.addWidget(self.resultsLabelInfoText)
+        self.subLayout4h.addWidget(self.resultsLabelInfoText)
         # self.layout.addWidget(self.resultLabel)
         self.resultLabel.setMinimumHeight(int(screen.availableSize().height() * 0.1))
 
