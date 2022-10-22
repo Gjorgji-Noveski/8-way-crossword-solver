@@ -104,6 +104,7 @@ class CrosswordSolver(QWidget):
         self.columnsField.setValue(10)
         self.columnsField.setMaximumWidth(int(screen.availableSize().width() * 0.04))
         self.subLayout1hChild2.addWidget(self.columnsField)
+        self.columnsField.valueChanged.connect(lambda: self.runImgPreprocessing(self.crosswordPicturePath))
 
         # Displaying results
         self.resultLabel = QLabel(self)
@@ -127,9 +128,13 @@ class CrosswordSolver(QWidget):
 
     def searchForWords(self):
         words = set()
-        for element in self.textBox.toPlainText().split(' '):
-            words.add(element)
         result = ""
+
+        for element in self.textBox.toPlainText().split(' '):
+            if len(element) > 1:
+                words.add(element)
+            else:
+                result += "---Single letter found, skipping---\n\n"
         for word in words:
             if word.strip() == '':
                 continue
