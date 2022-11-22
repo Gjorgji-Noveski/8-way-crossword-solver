@@ -4,11 +4,13 @@ import cv2
 class ImgPreprocessing:
     """
     In order to account for different sized word grids, a ratio is calculated between the width of the image
-    and the number of columns in the word grid. This ratio is used to calculate the width dimension of the resized image.
-    During testing the ratio of 51 was found to be a good default (500 pixels width in image / 10 columns in the word grid)
+    and the number of columns in the word grid. This ratio is used to calculate the width of the resized image.
+    During testing the ratio of 52 was found to be a good default (500 pixels image width / 10 columns in the word grid)
     So for example, if the image contains 15 columns, we rescale the input image to a width of around 765 (15*51)
     """
+
     ratio = 52
+
     @classmethod
     def calc_dim_with_aspect_ratio(cls, img_shape, col_count):
         # numpy uses (height, width) as image shape order. The image opened with OpenCV are stored as numpy array
@@ -24,12 +26,18 @@ class ImgPreprocessing:
         # used just for displaying on interface
         img_color_resized = cv2.resize(img_color,
                                        dsize=cls.calc_dim_with_aspect_ratio(img_color.shape, col_count))
+        print(f'original size {img_color.shape}\nresized:')
         print(cls.calc_dim_with_aspect_ratio(img_color.shape, col_count))
         cv2.imwrite('resized_image.jpg', img_color_resized)
 
         img_gray = cv2.imread(img_path, cv2.IMREAD_GRAYSCALE)
 
-        # resizing the image so we the image size doesn't affect quality of image processing (blur, kernels, etc)
+        """
+        This is done to ensure that we always have consistent amount of preprocessing done to the image, regardless of the
+        image size. For example if we don't resize the image, running one blur iteration on a 1200x600 image will have a
+        weaker effect than running the one blur iteration on a 800x400 image and thus quality of the optical character 
+        recognition will vary.
+        """
         img_resized = cv2.resize(img_gray, dsize=cls.calc_dim_with_aspect_ratio(img_gray.shape, col_count))
 
         blurred_img = cv2.blur(img_resized, (5, 5))
