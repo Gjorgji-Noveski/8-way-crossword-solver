@@ -35,10 +35,6 @@ class ImageHolder(QLabel):
         self.cropArea = None
 
     def mousePressEvent(self, event):
-        print(f'Mouse clicked: {event.pos()}')
-        print(f'but image is at {self.pixmap().rect()}')
-        print(f'but image is at {self.geometry()}')
-
         self.initialClickPos = event.pos()
         self.cropArea = QRubberBand(QRubberBand.Rectangle, self)
         self.cropArea.setGeometry(QRect(self.initialClickPos, QSize()))
@@ -50,18 +46,11 @@ class ImageHolder(QLabel):
 
     def mouseReleaseEvent(self, event):
         self.cropArea.hide()
-        # TODO: TRY TO MAKE IMAGEHOLDER SIZE == TO PIXMAP SIZE
-
-        print(f'cropped area after realese (rect):{self.cropArea.rect()}')
-        print(f'cropped area after realese (geometry):{self.cropArea.geometry()}')
-
-
         newImg = self.pixmap().copy(self.cropArea.geometry())
-        print(f'now pixmap rect is {self.pixmap().rect()}')
         self.setPixmap(newImg)
+        self.setFixedSize(self.pixmap().rect().width(), self.pixmap().rect().height())
         newImg.save(self.parent.resizedImagePath)
         self.cropArea.deleteLater()
 
         self.parent.runImgPreprocessing(self.parent.resizedImagePath)
         self.parent.rerunOcr()
-        # print(self.children())

@@ -76,8 +76,7 @@ class CrosswordSolver(QWidget):
         self.subLayout1hChild1.addWidget(self.languageSelectBox)
 
         self.imageHolder = ImageHolder(self)
-        # self.imageHolder.setFixedSize(int(screen.availableSize().width() * 0.75), int(screen.availableSize().height() * 0.75))
-        print(f'size of image holder {self.imageHolder.size()}, \nposition: {self.imageHolder.pos()}, \nframe size:{self.imageHolder.frameSize()}, \nframe rect:{self.imageHolder.frameRect()}, \nbase size: {self.imageHolder.baseSize()}')
+        # print(f'size of image holder {self.imageHolder.size()}, \nposition: {self.imageHolder.pos()}, \nframe size:{self.imageHolder.frameSize()}, \nframe rect:{self.imageHolder.frameRect()}, \nbase size: {self.imageHolder.baseSize()}')
 
         self.subLayout2h.addWidget(self.imageHolder)
         self.subLayout2h.addWidget(frame3)
@@ -157,10 +156,9 @@ class CrosswordSolver(QWidget):
             self.crosswordPicturePath = selectedImgPath
             self.runImgPreprocessing(self.crosswordPicturePath)
             self.imageHolder.setPixmap(QPixmap(self.resizedImagePath))
-            # IZGLEDA RESHENO E, OOO HAPPY DAY
             self.imageHolder.setFixedSize(self.imageHolder.pixmap().rect().width(), self.imageHolder.pixmap().rect().height())
 
-            print(f'now size is after loading image {self.imageHolder.size()}, \nposition of image holder widget: {self.imageHolder.pos()}, \nframe size:{self.imageHolder.frameSize()}, \nframe rect:{self.imageHolder.frameRect()}, \nbase size: {self.imageHolder.baseSize()}')
+            # print(f'now size is after loading image {self.imageHolder.size()}, \nposition of image holder widget: {self.imageHolder.pos()}, \nframe size:{self.imageHolder.frameSize()}, \nframe rect:{self.imageHolder.frameRect()}, \nbase size: {self.imageHolder.baseSize()}')
             self.runOCR()
             self.searchWordsBtn.setDisabled(False)
 
