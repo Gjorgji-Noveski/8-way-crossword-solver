@@ -20,8 +20,6 @@ class CrosswordSolver(QWidget):
         self.processedImagePath = 'processed_image.jpg'
         self.resizedImagePath = 'resized_image.jpg'
 
-
-
         self.setWindowTitle('PyQt5 App')
         self.setGeometry(100, 100, 280, 80)
         self.move(400, 400)
@@ -148,7 +146,8 @@ class CrosswordSolver(QWidget):
         self.resultLabel.setText(result)
 
     def runImgPreprocessing(self, picture_path):
-        ImgPreprocessing.preproces_image(picture_path, self.columnsField.value())
+        if self.crosswordPicturePath:
+            ImgPreprocessing.preproces_image(picture_path, self.columnsField.value())
 
     def dialogSelectImage(self):
         selectedImgPath = QFileDialog.getOpenFileName()[0]
