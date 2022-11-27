@@ -82,6 +82,7 @@ class CrosswordSolver(QWidget):
 
 
         chooseCrosswordPicBtn = QPushButton("Choose picture")
+        chooseCrosswordPicBtn.setMinimumHeight(int(screen.availableSize().height() * 0.05))
         self.subLayout3h.addWidget(chooseCrosswordPicBtn)
         chooseCrosswordPicBtn.clicked.connect(self.dialogSelectImage)
 
@@ -89,11 +90,12 @@ class CrosswordSolver(QWidget):
         self.textBox = PlainTextEdit(frame3)
 
         self.textBox.setPlaceholderText("Insert search words separated by space, ex: tree cat sky")
-        self.textBox.setMaximumHeight(200)
+        self.textBox.setMaximumHeight(int(screen.availableSize().height() * 0.12))
         self.subLayout2hChild.addWidget(self.textBox)
 
         # Search Words button
         self.searchWordsBtn = QPushButton("Search words")
+        self.searchWordsBtn.setMinimumHeight(int(screen.availableSize().height() * 0.05)) # the buttons should be at least 5% of the screens available size
         self.searchWordsBtn.setDisabled(True)
         self.subLayout3h.addWidget(self.searchWordsBtn)
         self.searchWordsBtn.clicked.connect(self.searchForWords)
