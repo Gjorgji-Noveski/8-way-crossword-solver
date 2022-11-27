@@ -14,6 +14,7 @@ class CrosswordSolver(QWidget):
 
     def __init__(self, screen, parent=None):
         super().__init__(parent)
+        self.screen = screen
         self.languageSelectedIdx = None
         self.txtPreprocess = TextPreprocessing("tesseract_text.txt")
         self.crosswordPicturePath = None
@@ -147,7 +148,8 @@ class CrosswordSolver(QWidget):
 
     def runImgPreprocessing(self, picture_path):
         if self.crosswordPicturePath:
-            ImgPreprocessing.preproces_image(picture_path, self.columnsField.value())
+            maxHeightOfResizedImage = int(self.screen.availableSize().height() * 0.8)
+            ImgPreprocessing.preproces_image(picture_path, self.columnsField.value(), maxHeightOfResizedImage)
 
     def dialogSelectImage(self):
         selectedImgPath = QFileDialog.getOpenFileName()[0]

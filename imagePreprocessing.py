@@ -12,7 +12,7 @@ class ImgPreprocessing:
     ratio = 52
 
     @classmethod
-    def calc_dim_with_aspect_ratio(cls, img_shape, col_count):
+    def calc_dim_with_by_col_count(cls, img_shape, col_count):
         # numpy uses (height, width) as image shape order. The image opened with OpenCV are stored as numpy array
         aspect_ratio = img_shape[1] / img_shape[0]
         size = int((cls.ratio * col_count) / aspect_ratio)
@@ -21,11 +21,19 @@ class ImgPreprocessing:
         return new_dim
 
     @classmethod
-    def preproces_image(cls, img_path, col_count):
+    def calc_dim_to_height(cls, img_shape, height):
+        aspect_ratio = img_shape[1] / img_shape[0]
+        return int(height * aspect_ratio), int(height)
+
+    @classmethod
+    def preproces_image(cls, img_path, col_count, max_height):
         img_color = cv2.imread(img_path)
         # used just for displaying on interface
+        img_color_resized_dims = cls.calc_dim_with_by_col_count(img_color.shape, col_count)
+        if img_color_resized_dims[1] > max_height:
+            img_color_resized_dims = cls.calc_dim_to_height(img_color.shape, max_height)
         img_color_resized = cv2.resize(img_color,
-                                       dsize=cls.calc_dim_with_aspect_ratio(img_color.shape, col_count))
+                                       dsize=img_color_resized_dims)
         print(f'original size {img_color.shape}\nresized: {img_color_resized.shape}')
 
         cv2.imwrite('resized_image.jpg', img_color_resized)
@@ -38,7 +46,7 @@ class ImgPreprocessing:
         weaker effect than running the one blur iteration on a 800x400 image and thus quality of the optical character 
         recognition will vary.
         """
-        img_resized = cv2.resize(img_gray, dsize=cls.calc_dim_with_aspect_ratio(img_gray.shape, col_count))
+        img_resized = cv2.resize(img_gray, dsize=cls.calc_dim_with_by_col_count(img_gray.shape, col_count))
 
         blurred_img = cv2.blur(img_resized, (5, 5))
 
