@@ -75,6 +75,7 @@ class CrosswordSolver(QWidget):
         self.subLayout1hChild1.addWidget(self.languageSelectBox)
 
         self.imageHolder = ImageHolder(self)
+        self.imageHolder.setDisabled(True)
         # print(f'size of image holder {self.imageHolder.size()}, \nposition: {self.imageHolder.pos()}, \nframe size:{self.imageHolder.frameSize()}, \nframe rect:{self.imageHolder.frameRect()}, \nbase size: {self.imageHolder.baseSize()}')
 
         self.subLayout2h.addWidget(self.imageHolder)
@@ -158,6 +159,7 @@ class CrosswordSolver(QWidget):
         if selectedImgPath:
             self.crosswordPicturePath = selectedImgPath
             self.runImgPreprocessing(self.crosswordPicturePath)
+            self.imageHolder.setDisabled(False)
             self.imageHolder.setPixmap(QPixmap(self.resizedImagePath))
             self.imageHolder.setFixedSize(self.imageHolder.pixmap().rect().width(), self.imageHolder.pixmap().rect().height())
 
