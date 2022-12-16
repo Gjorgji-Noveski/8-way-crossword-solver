@@ -1,5 +1,6 @@
 import subprocess
 import sys
+import platform
 
 from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QPixmap, QFont
@@ -168,10 +169,17 @@ class CrosswordSolver(QWidget):
             self.searchWordsBtn.setDisabled(False)
 
     def runOCR(self):
-        subprocess_result = subprocess.run(
-            ['tesseract.exe', self.processedImagePath, 'tesseract_text', '-l', self.languageSelectBox.currentData(),
-             '-psm', '6'], capture_output=True,
-            text=True, encoding="UTF-8")
+        if platform.system().lower() == "windows":
+
+            subprocess_result = subprocess.run(
+                ['tesseract.exe', self.processedImagePath, 'tesseract_text', '-l', self.languageSelectBox.currentData(),
+                 '--psm', '6'], capture_output=True,
+                text=True, encoding="UTF-8")
+        else:
+            subprocess_result = subprocess.run(
+                ['tesseract', self.processedImagePath, 'tesseract_text', '-l', self.languageSelectBox.currentData(),
+                 '--psm', '6'], capture_output=True,
+                text=True, encoding="UTF-8")
         print(f'Tesseract Stdout: {subprocess_result.stdout}')
         print(f'Tesseract Stderr: {subprocess_result.stderr}')
 
