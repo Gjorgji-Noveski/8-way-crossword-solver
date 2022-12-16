@@ -42,7 +42,6 @@ class ImageHolder(QLabel):
 
     def mouseMoveEvent(self, event):
         self.cropArea.setGeometry(QRect(self.initialClickPos, event.pos()).normalized())
-        print(self.cropArea.geometry())
 
     def mouseReleaseEvent(self, event):
         self.cropArea.hide()

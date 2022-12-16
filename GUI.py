@@ -77,7 +77,6 @@ class CrosswordSolver(QWidget):
 
         self.imageHolder = ImageHolder(self)
         self.imageHolder.setDisabled(True)
-        # print(f'size of image holder {self.imageHolder.size()}, \nposition: {self.imageHolder.pos()}, \nframe size:{self.imageHolder.frameSize()}, \nframe rect:{self.imageHolder.frameRect()}, \nbase size: {self.imageHolder.baseSize()}')
 
         self.subLayout2h.addWidget(self.imageHolder)
         self.subLayout2h.addWidget(frame3)
@@ -164,7 +163,6 @@ class CrosswordSolver(QWidget):
             self.imageHolder.setPixmap(QPixmap(self.resizedImagePath))
             self.imageHolder.setFixedSize(self.imageHolder.pixmap().rect().width(), self.imageHolder.pixmap().rect().height())
 
-            # print(f'now size is after loading image {self.imageHolder.size()}, \nposition of image holder widget: {self.imageHolder.pos()}, \nframe size:{self.imageHolder.frameSize()}, \nframe rect:{self.imageHolder.frameRect()}, \nbase size: {self.imageHolder.baseSize()}')
             self.runOCR()
             self.searchWordsBtn.setDisabled(False)
 
@@ -180,8 +178,8 @@ class CrosswordSolver(QWidget):
                 ['tesseract', self.processedImagePath, 'tesseract_text', '-l', self.languageSelectBox.currentData(),
                  '--psm', '6'], capture_output=True,
                 text=True, encoding="UTF-8")
-        print(f'Tesseract Stdout: {subprocess_result.stdout}')
-        print(f'Tesseract Stderr: {subprocess_result.stderr}')
+        # print(f'Tesseract Stdout: {subprocess_result.stdout}')
+        # print(f'Tesseract Stderr: {subprocess_result.stderr}')
 
 
 app = QApplication([])

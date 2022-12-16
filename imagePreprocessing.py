@@ -34,7 +34,6 @@ class ImgPreprocessing:
             img_color_resized_dims = cls.calc_dim_to_height(img_color.shape, max_height)
         img_color_resized = cv2.resize(img_color,
                                        dsize=img_color_resized_dims)
-        print(f'original size {img_color.shape}\nresized: {img_color_resized.shape}')
 
         cv2.imwrite('resized_image.jpg', img_color_resized)
 
