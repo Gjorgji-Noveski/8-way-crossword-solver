@@ -10,7 +10,7 @@ The words can be in 8 different orientations in the word grid:
 - from top to bottom
 - from top-right to bottom left, and so on
 
-![Example image of an eight way crossword](./example-8-way-crossword.png)
+![Example image of an eight way crossword](./images_for_readme/example-8-way-crossword.png)
 
 ## How it works
 The crossword solver is a tool in which you can input a picture of an 8-way crossword. When
@@ -37,7 +37,7 @@ The picture shows the working area of the program. The numbered sections are:
 6. Button to upload an image
 7. Button to search for the given input words in the image
 
-![Work area of the program](./work-area.png)
+![Work area of the program](./images_for_readme/work-area.png)
 
 
 ### Few notes
@@ -45,7 +45,7 @@ The picture shows the working area of the program. The numbered sections are:
 to not be able to find all the results
   
 - The value in the column number selector should be experimented with (+/-) in case the solver isn't able to find any solutions.
-  The ratio defined in the imagePreprocessing.py script is a good default, but sometimes selecting a higher number of 
+  The ratio defined in the imageProcessing.py script is a good default, but sometimes selecting a higher number of 
   columns than there actually are, gave more solutions.
   
 
@@ -54,4 +54,4 @@ The crossword solver also includes an image cropping feature. After you have upl
 and area which you want to crop from the uploaded image. By doing so you can improve the chances of finding solutions to the crossword if your uploaded
 image contains some other artefacts on it (irrelevant text/irrelevant pictures).
 
-![Example of cropping feature](./cropping-feature.png)
+![Example of cropping feature](./images_for_readme/cropping-feature.png)
