@@ -52,7 +52,7 @@ class TextProcessing:
         if locations[0][0] == locations[-1][0] and locations[0][1] < locations[-1][1]:
             locations.reverse()  # if the found match is a horizontal one, going left to right, the code will put multiple "()" at the same place because the string changes when parenthesis are inserted, reverse fixes it
         for loc in locations:
-            wg[loc[0]] = wg[loc[0]][:loc[1]] + '(' + wg[loc[0]][loc[1]] + ')' + wg[loc[0]][loc[1] + 1:]
+            wg[loc[0]] = wg[loc[0]][:loc[1]] + '(' + wg[loc[0]][loc[1]].upper() + ')' + wg[loc[0]][loc[1] + 1:]
         result = ""
         result += '\n'.join(wg)
         result += '\n---------------\n'
