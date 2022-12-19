@@ -22,7 +22,7 @@ class CrosswordSolver(QWidget):
         self.processedImagePath = 'processed_image.jpg'
         self.resizedImagePath = 'resized_image.jpg'
 
-        self.setWindowTitle('PyQt5 App')
+        self.setWindowTitle('8-way crossword solver')
         self.setGeometry(100, 100, 280, 80)
         self.move(400, 400)
         self.layout = QVBoxLayout(self)
