@@ -13,19 +13,6 @@ class PlainTextEdit(QPlainTextEdit):
         super().keyPressEvent(event)
 
 
-# TODO: problem: start program, open tall image krstozbor(1).jpg, reside window of widget for fullscreen, crop, and you will see it doesnt get cropped correctly
-# This happens only for the tall pic, for the krsozbor clean.jpg it doesnt happen.
-
-
-"""
-THIS MAKES problem with the crop after full window resize
-self.setpixmap(self.pixmap().copy(Qrect(self.geometry().intersected(self.cropArea.geometry()))))
-
-THIS DOESNT
-self.setpixmap(self.pixmap().copy(self.cropArea.geometry())
-"""
-
-
 class ImageHolder(QLabel):
 
     def __init__(self, parent):
