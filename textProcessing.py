@@ -1,16 +1,16 @@
 import copy
 
-class TextPreprocessing:
+class TextProcessing:
 
     def __init__(self, textPath):
         self.textPath = textPath
 
-    def text_preprocess(self, txt_path):
+    def text_process(self, txt_path):
         import re
         with open(txt_path, mode='r', encoding='utf-8')as f:
             ocr_text_lines = [re.sub(r'[\W\d\s]', '', line).lower() for line in f.readlines() if line.strip() != '']
             ocr_text_lines = [line for line in ocr_text_lines if line != '']
-        with open("after_preprocessing.txt", encoding='utf-8', mode='w') as wf:
+        with open("after_processing.txt", encoding='utf-8', mode='w') as wf:
             wf.write('\n'.join(ocr_text_lines))
         return ocr_text_lines
 
@@ -75,5 +75,5 @@ class TextPreprocessing:
 
 
     def search(self, word):
-        matrix = self.text_preprocess(self.textPath)
+        matrix = self.text_process(self.textPath)
         return self.loop_through_letters(matrix, word)

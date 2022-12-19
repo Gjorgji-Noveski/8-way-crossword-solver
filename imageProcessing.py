@@ -1,7 +1,7 @@
 import cv2
 
 
-class ImgPreprocessing:
+class ImgProcessing:
     """
     In order to account for different sized word grids, a ratio is calculated between the width of the image
     and the number of columns in the word grid. This ratio is used to calculate the width of the resized image.
@@ -26,7 +26,7 @@ class ImgPreprocessing:
         return int(height * aspect_ratio), int(height)
 
     @classmethod
-    def preproces_image(cls, img_path, col_count, max_height):
+    def process_image(cls, img_path, col_count, max_height):
         img_color = cv2.imread(img_path)
         # used just for displaying on interface
         img_color_resized_dims = cls.calc_dim_with_by_col_count(img_color.shape, col_count)
@@ -40,7 +40,7 @@ class ImgPreprocessing:
         img_gray = cv2.imread(img_path, cv2.IMREAD_GRAYSCALE)
 
         """
-        This is done to ensure that we always have consistent amount of preprocessing done to the image, regardless of the
+        This is done to ensure that we always have consistent amount of processing done to the image, regardless of the
         image size. For example if we don't resize the image, running one blur iteration on a 1200x600 image will have a
         weaker effect than running the one blur iteration on a 800x400 image and thus quality of the optical character 
         recognition will vary.

@@ -38,5 +38,5 @@ class ImageHolder(QLabel):
         newImg.save(self.parent.resizedImagePath)
         self.cropArea.deleteLater()
 
-        self.parent.runImgPreprocessing(self.parent.resizedImagePath)
+        self.parent.runImgProcessing(self.parent.resizedImagePath)
         self.parent.rerunOcr()
