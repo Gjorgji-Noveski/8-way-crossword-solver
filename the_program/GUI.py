@@ -110,7 +110,12 @@ class CrosswordSolver(QWidget):
         self.columnsField.setMinimum(1)
         self.columnsField.setMaximumWidth(int(screen.availableSize().width() * 0.04))
         self.subLayout1hChild2.addWidget(self.columnsField)
-        self.columnsField.valueChanged.connect(lambda: self.runImgProcessing(self.processedImagePath))
+
+        def call_img_process_and_ocr():
+            if self.crosswordPicturePath:
+                self.runImgProcessing(self.crosswordPicturePath)
+                self.runOCR()
+        self.columnsField.valueChanged.connect(call_img_process_and_ocr)
 
         # Displaying results
         self.resultLabel = QLabel(frame3)
