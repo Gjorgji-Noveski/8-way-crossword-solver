@@ -81,7 +81,6 @@ class CrosswordSolver(QWidget):
         self.subLayout2h.addWidget(self.imageHolder)
         self.subLayout2h.addWidget(frame3)
 
-
         chooseCrosswordPicBtn = QPushButton("Choose picture")
         chooseCrosswordPicBtn.setMinimumHeight(int(screen.availableSize().height() * 0.05))
         self.subLayout3h.addWidget(chooseCrosswordPicBtn)
@@ -96,7 +95,8 @@ class CrosswordSolver(QWidget):
 
         # Search Words button
         self.searchWordsBtn = QPushButton("Search words")
-        self.searchWordsBtn.setMinimumHeight(int(screen.availableSize().height() * 0.05)) # the buttons should be at least 5% of the screens available size
+        self.searchWordsBtn.setMinimumHeight(
+            int(screen.availableSize().height() * 0.05))  # the buttons should be at least 5% of the screens available size
         self.searchWordsBtn.setDisabled(True)
         self.subLayout3h.addWidget(self.searchWordsBtn)
         self.searchWordsBtn.clicked.connect(self.searchForWords)
@@ -107,9 +107,15 @@ class CrosswordSolver(QWidget):
         self.subLayout1hChild2.addWidget(self.columnLabel)
         self.columnsField = QSpinBox(frame2)
         self.columnsField.setValue(10)
+        self.columnsField.setMinimum(1)
         self.columnsField.setMaximumWidth(int(screen.availableSize().width() * 0.04))
         self.subLayout1hChild2.addWidget(self.columnsField)
-        self.columnsField.valueChanged.connect(lambda: self.runImgProcessing(self.crosswordPicturePath))
+
+        def call_img_process_and_ocr():
+            if self.crosswordPicturePath:
+                self.runImgProcessing(self.crosswordPicturePath)
+                self.runOCR()
+        self.columnsField.valueChanged.connect(call_img_process_and_ocr)
 
         # Displaying results
         self.resultLabel = QLabel(frame3)
@@ -161,7 +167,8 @@ class CrosswordSolver(QWidget):
             self.runImgProcessing(self.crosswordPicturePath)
             self.imageHolder.setDisabled(False)
             self.imageHolder.setPixmap(QPixmap(self.resizedImagePath))
-            self.imageHolder.setFixedSize(self.imageHolder.pixmap().rect().width(), self.imageHolder.pixmap().rect().height())
+            self.imageHolder.setFixedSize(self.imageHolder.pixmap().rect().width(),
+                                          self.imageHolder.pixmap().rect().height())
 
             self.runOCR()
             self.searchWordsBtn.setDisabled(False)
