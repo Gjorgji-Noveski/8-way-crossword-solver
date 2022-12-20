@@ -107,9 +107,10 @@ class CrosswordSolver(QWidget):
         self.subLayout1hChild2.addWidget(self.columnLabel)
         self.columnsField = QSpinBox(frame2)
         self.columnsField.setValue(10)
+        self.columnsField.setMinimum(1)
         self.columnsField.setMaximumWidth(int(screen.availableSize().width() * 0.04))
         self.subLayout1hChild2.addWidget(self.columnsField)
-        self.columnsField.valueChanged.connect(lambda: self.runImgProcessing(self.crosswordPicturePath))
+        self.columnsField.valueChanged.connect(lambda: self.runImgProcessing(self.processedImagePath))
 
         # Displaying results
         self.resultLabel = QLabel(frame3)
