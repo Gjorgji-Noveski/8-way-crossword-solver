@@ -6,9 +6,9 @@ from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QPixmap, QFont
 from PyQt5.QtWidgets import *
 
-from imagePreprocessing import ImgPreprocessing
+from imageProcessing import ImgProcessing
 from overridenFunctionalities import PlainTextEdit, ImageHolder
-from textPreprocessing import TextPreprocessing
+from textProcessing import TextProcessing
 
 
 class CrosswordSolver(QWidget):
@@ -17,7 +17,7 @@ class CrosswordSolver(QWidget):
         super().__init__(parent)
         self.screen = screen
         self.languageSelectedIdx = None
-        self.txtPreprocess = TextPreprocessing("tesseract_text.txt")
+        self.txtProcess = TextProcessing("tesseract_text.txt")
         self.crosswordPicturePath = None
         self.processedImagePath = 'processed_image.jpg'
         self.resizedImagePath = 'resized_image.jpg'
@@ -109,7 +109,7 @@ class CrosswordSolver(QWidget):
         self.columnsField.setValue(10)
         self.columnsField.setMaximumWidth(int(screen.availableSize().width() * 0.04))
         self.subLayout1hChild2.addWidget(self.columnsField)
-        self.columnsField.valueChanged.connect(lambda: self.runImgPreprocessing(self.crosswordPicturePath))
+        self.columnsField.valueChanged.connect(lambda: self.runImgProcessing(self.crosswordPicturePath))
 
         # Displaying results
         self.resultLabel = QLabel(frame3)
@@ -142,23 +142,23 @@ class CrosswordSolver(QWidget):
         for word in words:
             if word.strip() == '':
                 continue
-            foundWord = self.txtPreprocess.search(word)
+            foundWord = self.txtProcess.search(word)
             if foundWord:
                 result += foundWord
         if result == "":
             result += "No matches found"
         self.resultLabel.setText(result)
 
-    def runImgPreprocessing(self, picture_path):
+    def runImgProcessing(self, picture_path):
         if self.crosswordPicturePath:
             maxHeightOfResizedImage = int(self.screen.availableSize().height() * 0.8)
-            ImgPreprocessing.preproces_image(picture_path, self.columnsField.value(), maxHeightOfResizedImage)
+            ImgProcessing.process_image(picture_path, self.columnsField.value(), maxHeightOfResizedImage)
 
     def dialogSelectImage(self):
         selectedImgPath = QFileDialog.getOpenFileName()[0]
         if selectedImgPath:
             self.crosswordPicturePath = selectedImgPath
-            self.runImgPreprocessing(self.crosswordPicturePath)
+            self.runImgProcessing(self.crosswordPicturePath)
             self.imageHolder.setDisabled(False)
             self.imageHolder.setPixmap(QPixmap(self.resizedImagePath))
             self.imageHolder.setFixedSize(self.imageHolder.pixmap().rect().width(), self.imageHolder.pixmap().rect().height())

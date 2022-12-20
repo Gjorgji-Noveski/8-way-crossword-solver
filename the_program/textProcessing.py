@@ -1,16 +1,16 @@
 import copy
 
-class TextPreprocessing:
+class TextProcessing:
 
     def __init__(self, textPath):
         self.textPath = textPath
 
-    def text_preprocess(self, txt_path):
+    def text_process(self, txt_path):
         import re
         with open(txt_path, mode='r', encoding='utf-8')as f:
             ocr_text_lines = [re.sub(r'[\W\d\s]', '', line).lower() for line in f.readlines() if line.strip() != '']
             ocr_text_lines = [line for line in ocr_text_lines if line != '']
-        with open("after_preprocessing.txt", encoding='utf-8', mode='w') as wf:
+        with open("after_processing.txt", encoding='utf-8', mode='w') as wf:
             wf.write('\n'.join(ocr_text_lines))
         return ocr_text_lines
 
@@ -52,7 +52,7 @@ class TextPreprocessing:
         if locations[0][0] == locations[-1][0] and locations[0][1] < locations[-1][1]:
             locations.reverse()  # if the found match is a horizontal one, going left to right, the code will put multiple "()" at the same place because the string changes when parenthesis are inserted, reverse fixes it
         for loc in locations:
-            wg[loc[0]] = wg[loc[0]][:loc[1]] + '(' + wg[loc[0]][loc[1]] + ')' + wg[loc[0]][loc[1] + 1:]
+            wg[loc[0]] = wg[loc[0]][:loc[1]] + '(' + wg[loc[0]][loc[1]].upper() + ')' + wg[loc[0]][loc[1] + 1:]
         result = ""
         result += '\n'.join(wg)
         result += '\n---------------\n'
@@ -75,5 +75,5 @@ class TextPreprocessing:
 
 
     def search(self, word):
-        matrix = self.text_preprocess(self.textPath)
+        matrix = self.text_process(self.textPath)
         return self.loop_through_letters(matrix, word)
