@@ -48,6 +48,9 @@ to not be able to find all the results
   The ratio defined in the imageProcessing.py script is a good default, but sometimes selecting a higher number of 
   columns than there actually are, gave more solutions.
   
+On the picture we can see an example of how the solver finds a match for a word, and the resulting letter
+locations are displayed with brackets.
+![Example of cropping feature](./images_for_readme/example_results.png)
 
 ## Cropping feature
 The crossword solver also includes an image cropping feature. After you have uploaded an image, you can click-hold-and-drag to select
