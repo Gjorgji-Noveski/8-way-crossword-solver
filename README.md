@@ -58,3 +58,20 @@ and area which you want to crop from the uploaded image. By doing so you can imp
 image contains some other artefacts on it (irrelevant text/irrelevant pictures).
 
 ![Example of cropping feature](./images_for_readme/cropping-feature.png)
+
+## Running through Docker
+It is possible to run the crossword solver using a docker container. Currently, the program can only be run if you are using Linux. If 
+you are using Windows, then you can use the provided .exe file in this repository.
+
+### On Linux
+Linux users can run the program by pulling the docker image 
+on the docker hub repository with the command `docker pull gjorgjin/8-way-crossword-solver`.
+
+After the image is pulled, it should be run with the following command: 
+
+```
+docker run --mount type=bind,source="$(pwd)"/data,target=/the_program/data --mount type=bind,source=/tmp/.X11-unix/,target=/tmp/.X11-unix/ -e DISPLAY=$DISPLAY -u solver-user gjorgjin/8-way-crossword-solver
+```
+
+For more information regarding the docker image, you can check out [this link](https://hub.docker.com/r/gjorgjin/8-way-crossword-solver) 
+to visit the docker hub page. 
