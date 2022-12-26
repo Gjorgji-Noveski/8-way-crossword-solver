@@ -75,3 +75,9 @@ docker run --mount type=bind,source="$(pwd)"/data,target=/the_program/data --mou
 
 For more information regarding the docker image, you can check out [this link](https://hub.docker.com/r/gjorgjin/8-way-crossword-solver) 
 to visit the docker hub page. 
+
+-------------
+If you have any questions, feel free to send an email to: gjorgji.noveski@ijs.si
+
+For any bug fixes or other issues, create and issue or open up a pull request.
+Thank you!
