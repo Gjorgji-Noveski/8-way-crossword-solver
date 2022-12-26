@@ -10,7 +10,10 @@ class ImgProcessing:
     """
 
     ratio = 52
-
+    @classmethod
+    def save_img(cls, name, img_path):
+        img = cv2.imread(img_path)
+        cv2.imwrite(name, img)
     @classmethod
     def calc_dim_with_by_col_count(cls, img_shape, col_count):
         # numpy uses (height, width) as image shape order. The image opened with OpenCV are stored as numpy array
@@ -26,7 +29,7 @@ class ImgProcessing:
         return int(height * aspect_ratio), int(height)
 
     @classmethod
-    def process_image(cls, img_path, col_count, max_height):
+    def save_resized_img(cls, img_path, col_count, max_height):
         img_color = cv2.imread(img_path)
         # used just for displaying on interface
         img_color_resized_dims = cls.calc_dim_with_by_col_count(img_color.shape, col_count)
@@ -36,6 +39,9 @@ class ImgProcessing:
                                        dsize=img_color_resized_dims)
 
         cv2.imwrite('resized_image.jpg', img_color_resized)
+
+    @classmethod
+    def process_image(cls, img_path, col_count):
 
         img_gray = cv2.imread(img_path, cv2.IMREAD_GRAYSCALE)
 

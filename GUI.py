@@ -20,6 +20,7 @@ class CrosswordSolver(QWidget):
         self.txtProcess = TextProcessing("tesseract_text.txt")
         self.crosswordPicturePath = None
         self.processedImagePath = 'processed_image.jpg'
+        self.displayedImgPath = 'displayed_image.jpg'
         self.resizedImagePath = 'resized_image.jpg'
 
         self.setWindowTitle('8-way crossword solver')
@@ -113,7 +114,7 @@ class CrosswordSolver(QWidget):
 
         def call_img_process_and_ocr():
             if self.crosswordPicturePath:
-                self.runImgProcessing(self.crosswordPicturePath)
+                self.runImgProcessing(self.displayedImgPath)
                 self.runOCR()
         self.columnsField.valueChanged.connect(call_img_process_and_ocr)
 
@@ -157,16 +158,22 @@ class CrosswordSolver(QWidget):
 
     def runImgProcessing(self, picture_path):
         if self.crosswordPicturePath:
+            ImgProcessing.process_image(picture_path, self.columnsField.value())
+
+    def runImgResizing(self, picture_path):
+        if self.crosswordPicturePath:
             maxHeightOfResizedImage = int(self.screen.availableSize().height() * 0.8)
-            ImgProcessing.process_image(picture_path, self.columnsField.value(), maxHeightOfResizedImage)
+            ImgProcessing.save_resized_img(picture_path, self.columnsField.value(), maxHeightOfResizedImage)
 
     def dialogSelectImage(self):
         selectedImgPath = QFileDialog.getOpenFileName()[0]
         if selectedImgPath:
             self.crosswordPicturePath = selectedImgPath
+            self.runImgResizing(self.crosswordPicturePath)
             self.runImgProcessing(self.crosswordPicturePath)
             self.imageHolder.setDisabled(False)
             self.imageHolder.setPixmap(QPixmap(self.resizedImagePath))
+            ImgProcessing.save_img('displayed_image.jpg', self.crosswordPicturePath)
             self.imageHolder.setFixedSize(self.imageHolder.pixmap().rect().width(),
                                           self.imageHolder.pixmap().rect().height())
 
