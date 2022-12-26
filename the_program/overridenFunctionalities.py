@@ -48,8 +48,8 @@ class ImageHolder(QLabel):
         newImg = self.pixmap().copy(self.cropArea.geometry())
         self.setPixmap(newImg)
         self.setFixedSize(self.pixmap().rect().width(), self.pixmap().rect().height())
-        newImg.save(self.parent.resizedImagePath)
+        newImg.save(self.parent.displayedImgPath)
         self.cropArea.deleteLater()
 
-        self.parent.runImgProcessing(self.parent.resizedImagePath)
+        self.parent.runImgProcessing(self.parent.displayedImgPath)
         self.parent.rerunOcr()
