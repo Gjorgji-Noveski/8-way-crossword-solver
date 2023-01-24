@@ -77,7 +77,5 @@ For more information regarding the docker image, you can check out [this link](h
 to visit the docker hub page. 
 
 -------------
-If you have any questions, feel free to send an email to: gjorgji.noveski@ijs.si
-
-For any bug fixes or other issues, create and issue or open up a pull request.
+For any bug fixes or other issues, create an issue or open up a pull request.
 Thank you!
